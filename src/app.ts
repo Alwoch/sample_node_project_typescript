@@ -1,5 +1,7 @@
 import express from "express";
 import { Request, Response } from "express";
+import fs from "fs";
+import path from "path";
 
 //express app
 const app: express.Application = express();
@@ -14,13 +16,24 @@ interface User {
   email: string;
 }
 
-const userData: User[] = [
-  { id: 1, username: "john", email: "john@example.com" },
-  { id: 2, username: "caleb", email: "caleb@example.com" },
-  { id: 3, username: "nakamura", email: "nakamura@example.com" },
-  { id: 4, username: "steve", email: "steve@example.com" },
-  { id: 5, username: "kelcey", email: "kelcey@example.com" },
-];
+let userData: User[] = [];
+
+// Load data from the userData.json file
+try {
+  userData = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../userData.json"), "utf-8")
+  );
+} catch (error) {
+  console.error(error);
+}
+
+// Save data to the userData.json file
+const saveData = () => {
+  fs.writeFileSync(
+    path.join(__dirname, "../userData.json"),
+    JSON.stringify(userData)
+  );
+};
 
 //routes
 
@@ -41,7 +54,7 @@ app.post("/", (req: Request, res: Response) => {
     email,
   };
   userData.push(newUser);
-  console.log(userData);
+  saveData();
 
   res.status(201).json(newUser);
 });
@@ -63,35 +76,39 @@ app.get("/:userId", (req: Request, res: Response) => {
 
 //update user
 app.patch("/:userId", (req: Request, res: Response) => {
- const userId = parseInt(req.params.userId);
- const userIndex = userData.findIndex(user => user.id === userId);
- if (userIndex === -1) {
-   return res.status(404).json({ msg: "user not found" });
- }
+  const userId = parseInt(req.params.userId);
+  const userIndex = userData.findIndex((user) => user.id === userId);
+  if (userIndex === -1) {
+    return res.status(404).json({ msg: "user not found" });
+  }
 
- const user = userData[userIndex];
- const { username, email } = req.body;
- if (username) {
-   user.username = username;
- }
- if (email) {
-   user.email = email;
- }
+  const user = userData[userIndex];
+  const { username, email } = req.body;
+  if (username) {
+    user.username = username;
+  }
+  if (email) {
+    user.email = email;
+  }
 
- userData[userIndex] = user;
- res.status(200).json(user);
+  userData[userIndex] = user;
+  saveData();
+
+  res.status(200).json(user);
 });
 
 //delete user
 app.delete("/:userId", (req: Request, res: Response) => {
- const userId = parseInt(req.params.userId);
- const userIndex = userData.findIndex(user => user.id === userId);
- if (userIndex === -1) {
-   return res.status(404).json({ msg: "user not found" });
- }
+  const userId = parseInt(req.params.userId);
+  const userIndex = userData.findIndex((user) => user.id === userId);
+  if (userIndex === -1) {
+    return res.status(404).json({ msg: "user not found" });
+  }
 
- userData.splice(userIndex, 1);
- res.sendStatus(204);
+  userData.splice(userIndex, 1);
+  saveData();
+
+  res.status(204).json({ msg: "user has been deleted" });
 });
 
 //port
