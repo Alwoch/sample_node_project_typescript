@@ -9,7 +9,7 @@ const app: express.Application = express();
 //middleware
 app.use(express.json());
 
-//data
+//user interface
 interface User {
   id: number;
   username: string;
@@ -47,14 +47,14 @@ app.post("/", (req: Request, res: Response) => {
     return res.status(209).json({ msg: "user is already in existence" });
   }
 
-  //create user
+  //new user
   const newUser: User = {
     id: userData.length + 1,
     username,
     email,
   };
-  userData.push(newUser);
-  saveData();
+  userData.push(newUser); //add new user to userData
+  saveData(); //save the user to the json file
 
   res.status(201).json(newUser);
 });
