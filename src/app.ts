@@ -41,6 +41,11 @@ const saveData = () => {
 app.post("/", (req: Request, res: Response) => {
   const { username, email } = req.body;
 
+  //throw an error if either username or email is missing
+  if (!username || !email) {
+    res.status(400).json({ msg: "please provide both username and email" });
+  }
+
   //check if a user with the same email exists
   const existingUser = userData.find((user) => user.email === email);
   if (existingUser) {
