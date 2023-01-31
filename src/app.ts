@@ -61,6 +61,7 @@ app.post("/", (req: Request, res: Response) => {
   userData.push(newUser); //add new user to userData
   saveData(); //save the user to the json file
 
+  //return the user
   res.status(201).json(newUser);
 });
 
@@ -82,7 +83,7 @@ app.get("/:userId", (req: Request, res: Response) => {
 //update user
 app.patch("/:userId", (req: Request, res: Response) => {
   const userId = parseInt(req.params.userId);
-  
+
   const userIndex = userData.findIndex((user) => user.id === userId);
   if (userIndex === -1) {
     return res.status(404).json({ msg: "user not found" });
